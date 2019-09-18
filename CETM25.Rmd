@@ -20,15 +20,19 @@ library(dbplyr)
 library(vcd)
 options(shiny.sanitize.errors = FALSE)
 
-setwd("D:/Data Science/CETM 25 Data Visualisation/Assignment")
+#set work directory
+#setwd("D:/Data Science/CETM 25 Data Visualisation/Assignment")
 y2018<-c("2018 Q1", "2018 Q2", "2018 Q3", "2018 Q4")
+
+#load data
 loan_raw <- fread("loan.csv")
 loan2018_raw <- loan_raw[year_quarter%chin%y2018]
 loan2019_raw <- loan_raw[year_quarter%chin%c("2019 Q1", "2019 Q2"),]
 state_to_abbr<- fread("state.csv")
 loan2018<-loan2018_raw
 loan2019<-loan2019_raw
-# specify some map projection/options
+#specify some map projection/options
+#using plotly package to draw map
 g <- list(
   scope = 'usa',
   projection = list(type = 'albers usa'),
@@ -38,7 +42,7 @@ g <- list(
 
 ```
 
-Introduction
+Introduction {data-icon="fas fa-globe-americas"}
 =======================================================================
 
 Column {.tabset}
@@ -47,6 +51,7 @@ Column {.tabset}
 ### Loan by States
 
 ```{r}
+#create specific data table for the first map
 loan_map <- loan_raw[loan_status %chin% c("Charged Off", "Current", "Issued", "In Grace Period", 
                                               "Late (16-30 days)", "Late (31-120 days)"), 
                                          .(no_app = .N, total_int=sum(total_int), 
@@ -56,7 +61,7 @@ loan_map <- loan_raw[loan_status %chin% c("Charged Off", "Current", "Issued", "I
 loan_map <- left_join(state_to_abbr, loan_map, by = c("code" = "addr_state"))
 loan_map$hover <- with(loan_map, paste(state, '<br>', 
                                        "No of App",format(no_app, big.mark = ","), '<br>', 
-                                       "Issued loan Amount", format(loan_amount, big.mark = ","),'<br>',
+                                       "Issued Loan Amount", format(loan_amount, big.mark = ","),'<br>',
                                        "Expected Revenue", format(total_int, big.mark = ","), '<br>', 
                                        "Average Annual Income", format(mn_an_income, big.mark = ","), '<br>', 
                                        "Average Interest Rate", mn_int_rate*100,"%"))
@@ -102,6 +107,19 @@ default_map_plot <- plot_geo(default_map, locationmode = 'USA-states') %>%
 default_map_plot
 ```
 
+### Abstract
+
+This data set is an open dataset from Kaggle, Lending Club Loan Data. https://www.kaggle.com/wendykan/lending-club-loan-data
+
+The first map (Map 1) introduces the loan information in 2018 and 2019, including number of loans, issued loan amounts, average income on each state etc. On the right bottom side of the page, there is a gauge for the ratio of issued loan amount on 2019 and 2018. This gauge presents the percentage of target achieved on 2019.
+
+The second map (Map 2) shows the bad loans which may be potentially default or default already. The loans status includes "Charge Off", "In Grace Period", "Late Payments" and "Default". The information in map includes number of bad loans, bad loan amounts, average debt-to-income ratio and average annual income etc. 
+
+It is noted that there are the hover information shown when the mouse point to the states in map. The colors in gradient present the degree of expected revenue calculated by total interests (Map 1) and the interest lost in bad loans (Map 2). 
+
+The table at the right side is a brief introduction in numbers between 2018 and 2019. You can drag the columns left or right for your convenience.
+
+
 Column {data-width=250}
 -----------------------------------------------------------------------
 
@@ -131,7 +149,6 @@ table_loan
 
 ```
 
-
 ### Achievement of Issued Loan Amount in 2019
 
 ```{r}
@@ -141,10 +158,19 @@ gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
 ```
 
 
-
-
 Year-Quarter {data-navmenu="Loan by Types"}
 =======================================================================
+
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+This line chart indicates the average bad loan amount on each quarter. 
+
+Each line type presents each bad loan status.
+
+The information on every point of quarters would be shown, including average interest rate and average loan amount.
+
 
 Column
 -----------------------------------------------------------------------
@@ -162,13 +188,22 @@ quarter_plot<- quarter_loan%>%
                           add_lines(linetype=~loan_status,color = ~loan_status)%>%
                           layout(xaxis=list(title="Year Quarter"),
                                  yaxis=list(title="Average Loan Amount"),
-                                 title="Average Loan Amount on Loan Purpose by Income Category")  
+                                 title="Average Bad Loan Amount on Loan Purpose by Income Category")  
             
 quarter_plot
 ```
 
 Brief Study on Bad Loans {data-navmenu="Loan by Types"}
 =======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+There are three pie charts to represent the bad loans by credit grades, income categories, and regions.
+
+
+The information includes the percentage of each category, and also the hover information shown when the mouse point to the pie parts.
+
 
 Column {.tabset}
 -----------------------------------------------------------------------
@@ -183,7 +218,8 @@ grade_plot_pie<-grade_loan_pie%>%
                     textinfo = 'label+percent',
                     insidetextfont = list(color = '#FFFFFF'),
                     hoverinfo = 'text',
-                    text = ~paste('Number of Loans: ', no_of_loan),
+                    text = ~paste('Grade: ', grade, "<br>",
+                                  'Number of Loans: ', no_of_loan),
                     marker = list(colors = ~grade,
                                   line = list(color = '#FFFFFF', width = 1)),
                     #The 'pull' attribute can also be used to create space between the sectors
@@ -205,12 +241,13 @@ income_cat_plot_pie<-income_cat_loan_pie%>%
                     textinfo = 'label+percent',
                     insidetextfont = list(color = '#FFFFFF'),
                     hoverinfo = 'text',
-                    text = ~paste('Number of Loans: ', no_of_loan),
+                    text = ~paste('Income Category: ', income_cat, "<br>",
+                                  'Number of Loans: ', no_of_loan),
                     marker = list(colors = ~income_cat,
                                   line = list(color = '#FFFFFF', width = 1)),
                     #The 'pull' attribute can also be used to create space between the sectors
                     showlegend = FALSE) %>%
-                        layout(title = 'Income Categories Proportion on Bad Loa',
+                        layout(title = 'Income Categories Proportion on Bad Loan',
                     xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                     yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 income_cat_plot_pie
@@ -226,12 +263,13 @@ region_plot_pie<-region_loan_pie%>%
                     textinfo = 'label+percent',
                     insidetextfont = list(color = '#FFFFFF'),
                     hoverinfo = 'text',
-                    text = ~paste('Number of Loans: ', no_of_loan),
+                    text = ~paste('Region: ', region, "<br>",
+                                  'Number of Loans: ', no_of_loan),
                     marker = list(colors = ~region,
                                   line = list(color = '#FFFFFF', width = 1)),
                     #The 'pull' attribute can also be used to create space between the sectors
                     showlegend = FALSE) %>%
-                        layout(title = 'Region Proportion on Bad Loa',
+                        layout(title = 'Region Proportion on Bad Loan',
                     xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                     yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 region_plot_pie
@@ -240,6 +278,18 @@ region_plot_pie
 
 Loan Purpose {data-navmenu="Loan by Types"}
 =======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+The bubble plot indicates the average interest rate on each loan purpose and also the colors are categorized by income. 
+
+
+This plot is animated that the bubble would move when year-quarter passes. (Press the "Play" button on left bottom)
+
+
+Please note that this plot does not present bad loan data only. 
+
 
 Column
 -----------------------------------------------------------------------
@@ -273,6 +323,15 @@ Region {data-navmenu="Loan by Types"}
 
 Column {.sidebar}
 -----------------------------------------------------------------------
+
+The bar chart shows the average annual income against each home ownership.
+
+
+On this side bar, you can choose the region(s) you want to know.
+
+
+Please note that this plot does not present bad loan data only. 
+
 
 ```{r, }
 title_type<- c("North West", "South East", "West", "Mid West", "South West")
@@ -313,18 +372,22 @@ renderPlotly({
 ```
 
 
-Assoication
+Assoication {data-icon="fas fa-chart-pie"}
 =======================================================================
 
 Column {.sidebar}
 -----------------------------------------------------------------------
 
->This moasic plot indicates the association between credit grades and class of income.
+This moasic plot indicates the association between credit grades and class of income.
 
->For each loan purpose selection, the plot would show the specific findings on selected loan purpose. 
 
->Signs at the right reveal the Peason's residuals. Blue means positively assoicated; Red means negatively associated.
+For each loan purpose selection, the plot would show the specific findings on selected loan purpose. 
 
+
+Signs at the right reveal the Pearson residuals. Blue means positively assoicated; Red means negatively associated.
+
+
+For example, in "Business" loan purpose category, the moasic plot shows Grade A is negatively associated with Low Income Category and positively associated with High and Medium. The color degree refers to the Pearson Residuals.
 
 
 ```{r}
