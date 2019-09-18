@@ -219,7 +219,6 @@ Column {.sidebar}
 
 There are three pie charts to represent the bad loans by credit grades, income categories, and regions.
 
-
 The information includes the percentage of each category, and also the hover information shown when the mouse point to the pie parts.
 
 
@@ -299,9 +298,7 @@ Column {.sidebar}
 
 The bubble plot indicates the average interest rate on each loan purpose and also the colors are categorized by income. 
 
-
 This plot is animated that the bubble would move when year-quarter passes. (Press the "Play" button on left bottom)
-
 
 Please note that this plot does not present bad loan data only. 
 
@@ -343,9 +340,7 @@ Column {.sidebar}
 
 The bar chart shows the average annual income against each home ownership.
 
-
 On this side bar, you can choose the region(s) you want to know.
-
 
 Please note that this plot does not present bad loan data only. 
 
@@ -397,12 +392,9 @@ Column {.sidebar}
 
 This moasic plot indicates the association between credit grades and class of income.
 
-
 For each loan purpose selection, the plot would show the specific findings on selected loan purpose. 
 
-
 Signs at the right reveal the Pearson residuals. Blue means positively assoicated; Red means negatively associated.
-
 
 For example, in "Business" loan purpose category, the moasic plot shows Grade A is negatively associated with Low Income Category and positively associated with High and Medium. The color degree refers to the Pearson Residuals.
 
