@@ -5,6 +5,7 @@ The viewer of your data visualisation product will be those junior governmet off
 
 ## Open Dataset
 This is a dataset from Kaggle, Lending Club Loan Data. https://www.kaggle.com/wendykan/lending-club-loan-data
+
 It is noted that the dataset used in dashboard has been modified, such as added new columns and changed the data formats etc.
 
 ## Code Style and Demostration
