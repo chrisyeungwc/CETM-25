@@ -7,5 +7,4 @@ The viewer of your data visualisation product will be those junior governmet off
 This is a dataset from Kaggle, Lending Club Loan Data. https://www.kaggle.com/wendykan/lending-club-loan-data
 
 ## Code Style and Demostration
-This data visualisation programming language is R and development platform is R Studio. The dashboard is built by flexdashboard and the demostration is referred to link below. https://chris-yeung.shinyapps.io/CETM25/
-Also, the source code has been uploaded as CETM25.Rmd
+This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. The dashboard is built by flexdashboard and the demostration is referred to link below. https://chris-yeung.shinyapps.io/CETM25/ 
