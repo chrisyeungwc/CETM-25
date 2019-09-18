@@ -1,0 +1,354 @@
+---
+title: "US Lending Club 2018 Q1 to 2019 Q2"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    social: menu
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(data.table)
+library(tidyverse)
+library(lubridate)
+library(plotly)
+library(crosstalk)
+library(shiny)
+library(dbplyr)
+library(vcd)
+options(shiny.sanitize.errors = FALSE)
+
+setwd("D:/Data Science/CETM 25 Data Visualisation/Assignment")
+y2018<-c("2018 Q1", "2018 Q2", "2018 Q3", "2018 Q4")
+loan_raw <- fread("loan.csv")
+loan2018_raw <- loan_raw[year_quarter%chin%y2018]
+loan2019_raw <- loan_raw[year_quarter%chin%c("2019 Q1", "2019 Q2"),]
+state_to_abbr<- fread("state.csv")
+loan2018<-loan2018_raw
+loan2019<-loan2019_raw
+# specify some map projection/options
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+
+```
+
+Introduction
+=======================================================================
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+### Loan by States
+
+```{r}
+loan_map <- loan_raw[loan_status %chin% c("Charged Off", "Current", "Issued", "In Grace Period", 
+                                              "Late (16-30 days)", "Late (31-120 days)"), 
+                                         .(no_app = .N, total_int=sum(total_int), 
+                                           mn_an_income=round(mean(annual_inc), 2), 
+                                          loan_amount = sum (loan_amnt), 
+                                          mn_int_rate=round(mean(loan_int),4)), by="addr_state"]
+loan_map <- left_join(state_to_abbr, loan_map, by = c("code" = "addr_state"))
+loan_map$hover <- with(loan_map, paste(state, '<br>', 
+                                       "No of App",format(no_app, big.mark = ","), '<br>', 
+                                       "Issued loan Amount", format(loan_amount, big.mark = ","),'<br>',
+                                       "Expected Revenue", format(total_int, big.mark = ","), '<br>', 
+                                       "Average Annual Income", format(mn_an_income, big.mark = ","), '<br>', 
+                                       "Average Interest Rate", mn_int_rate*100,"%"))
+
+map_plot <- plot_geo(loan_map, locationmode = 'USA-states') %>%
+  add_trace(
+    z = ~total_int, text = ~hover, locations = ~code,
+    color = ~total_int, colors = 'Blues'
+  ) %>%
+  colorbar(title = "Expected Revenue in USD") %>%
+  layout(
+    title = 'Expected Revenue (Interests) on Each State',
+    geo = g
+  )
+
+map_plot
+```
+
+### Bad Loan
+
+```{r}
+default_map <- loan_raw[bad_loan %chin% "Bad Loan", .(no_app = .N, total_int=sum(total_int), mn_an_income=round(mean(annual_inc), 2), 
+                                                 loan_amount = sum (loan_amnt), mn_dti=round(mean(dti, na.rm=TRUE),4)), by="addr_state"]
+default_map <- left_join(state_to_abbr, default_map, by = c("code" = "addr_state"))
+default_map$hover <- with(default_map, paste(state, '<br>', 
+                                             "No of Bad Loans: ",format(no_app, big.mark = ","), '<br>', 
+                                             "Total Loan Interest Involoved: ", format(total_int, big.mark = ","),'<br>',
+                                             "Total Bad Loan Amount: ", format(loan_amount, big.mark = ","),'<br>',
+                                             "Average Annual Income", format(mn_an_income, big.mark = ","), '<br>', 
+                                             "Average Debt-to-Income Ratio", mn_dti*100))
+
+default_map_plot <- plot_geo(default_map, locationmode = 'USA-states') %>%
+  add_trace(
+    z = ~total_int, text = ~hover, locations = ~code,
+    color = ~total_int, colors = 'Reds'
+  ) %>%
+  colorbar(title = "Bad Loan Interest in USD") %>%
+  layout(
+    title = 'Bad Loan on Each State',
+    geo = g
+  )
+
+default_map_plot
+```
+
+Column {data-width=250}
+-----------------------------------------------------------------------
+
+### Year-Quarter Table
+
+```{r}
+table_loan <- plot_ly(
+  type = 'table',
+  header = list(
+    values = c('<b>Year-Quarter</b>', '<b>2018 Q1-Q4</b>','<b>2019 Q1-Q2</b>'),
+    line = list(color = '#506784'),
+    fill = list(color = '#119DFF'),
+    align = c('center','center'),
+    font = list(color = 'white', size = 12)
+  ),
+  cells = list(
+    values = rbind(
+      c('No. of Applications', 'Expected Revenue (USD)', 'Average Annual Income (USD)', 'Total Loan Amount (USD)', 'Average Interest Rate', 'No. of Bad Loans', 'Default Rate', 'Bad Loan Amount (USD)'),
+      c("442,629","2,031M","80,078.42","7,097M","12.72%","27,706", "0.16%", "482.77M"),#2018
+      c("246,814","1,165M","80,046.67","4,103M","12.73%","3,166", "0.02%", "51.14M")),#2019
+    line = list(color = '#506784'),
+    fill = list(color = c( 'white')),
+    align = c('center', 'center'),
+    font = list(color = c('#506784'), size = 12)
+  ))
+table_loan
+
+```
+
+
+### Achievement of Issued Loan Amount in 2019
+
+```{r}
+rate <- round(sum(loan2019$loan_amnt)/sum(loan2018$loan_amnt)*100,2)
+gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+```
+
+
+
+
+Year-Quarter {data-navmenu="Loan by Types"}
+=======================================================================
+
+Column
+-----------------------------------------------------------------------
+
+### Year-Quarter
+
+```{r}
+quarter_loan<-loan_raw[bad_loan %chin% "Bad Loan", .(aver_int=round(mean(loan_int)*100, 2), aver_loan_amnt=mean(loan_amnt)), by=c("year_quarter", "loan_status")]
+
+quarter_plot<- quarter_loan%>%
+                  plot_ly(x=~year_quarter,y=~aver_loan_amnt,
+                          hoverinfo="text", 
+                          text=~paste("Average Interest Rate: ", round(aver_int, 2), "<br>",
+                                      "Average Loan Amount: ", round(aver_loan_amnt, 2)))%>%
+                          add_lines(linetype=~loan_status,color = ~loan_status)%>%
+                          layout(xaxis=list(title="Year Quarter"),
+                                 yaxis=list(title="Average Loan Amount"),
+                                 title="Average Loan Amount on Loan Purpose by Income Category")  
+            
+quarter_plot
+```
+
+Brief Study on Bad Loans {data-navmenu="Loan by Types"}
+=======================================================================
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+### Credit Grades
+
+```{r}
+grade_loan_pie<-loan_raw[bad_loan%chin%"Bad Loan",.(no_of_loan=.N), by="grade"]
+grade_plot_pie<-grade_loan_pie%>%
+  plot_ly(labels=~grade, values=~no_of_loan,type='pie',
+                    #testposition='inside',
+                    textinfo = 'label+percent',
+                    insidetextfont = list(color = '#FFFFFF'),
+                    hoverinfo = 'text',
+                    text = ~paste('Number of Loans: ', no_of_loan),
+                    marker = list(colors = ~grade,
+                                  line = list(color = '#FFFFFF', width = 1)),
+                    #The 'pull' attribute can also be used to create space between the sectors
+                    showlegend = FALSE) %>%
+                        layout(title = 'Credit Grade Proportion on Bad Loan',
+                    xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                    yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+grade_plot_pie
+
+```
+
+### Income Categories
+
+```{r}
+income_cat_loan_pie<-loan_raw[bad_loan%chin%"Bad Loan",.(no_of_loan=.N), by="income_cat"]
+income_cat_plot_pie<-income_cat_loan_pie%>%
+  plot_ly(labels=~income_cat, values=~no_of_loan,type='pie',
+                    #testposition='inside',
+                    textinfo = 'label+percent',
+                    insidetextfont = list(color = '#FFFFFF'),
+                    hoverinfo = 'text',
+                    text = ~paste('Number of Loans: ', no_of_loan),
+                    marker = list(colors = ~income_cat,
+                                  line = list(color = '#FFFFFF', width = 1)),
+                    #The 'pull' attribute can also be used to create space between the sectors
+                    showlegend = FALSE) %>%
+                        layout(title = 'Income Categories Proportion on Bad Loa',
+                    xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                    yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+income_cat_plot_pie
+```
+
+### Regions
+
+```{r}
+region_loan_pie<-loan_raw[bad_loan%chin%"Bad Loan",.(no_of_loan=.N), by="region"]
+region_plot_pie<-region_loan_pie%>%
+  plot_ly(labels=~region, values=~no_of_loan,type='pie',
+                    #testposition='inside',
+                    textinfo = 'label+percent',
+                    insidetextfont = list(color = '#FFFFFF'),
+                    hoverinfo = 'text',
+                    text = ~paste('Number of Loans: ', no_of_loan),
+                    marker = list(colors = ~region,
+                                  line = list(color = '#FFFFFF', width = 1)),
+                    #The 'pull' attribute can also be used to create space between the sectors
+                    showlegend = FALSE) %>%
+                        layout(title = 'Region Proportion on Bad Loa',
+                    xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                    yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+region_plot_pie
+
+```
+
+Loan Purpose {data-navmenu="Loan by Types"}
+=======================================================================
+
+Column
+-----------------------------------------------------------------------
+
+### Loan Purposes
+
+```{r}
+title_plot<- loan_raw%>%
+                group_by(title, income_cat, year_quarter)%>%
+                summarise(aver_int=mean(loan_int)*100, aver_loan_amnt=mean(loan_amnt))%>%
+                plot_ly(x=~aver_int,y=~title,
+                        hoverinfo="text", 
+                        text=~paste("Average Interest Rate: ", round(aver_int, 2), "<br>",
+                                    "Average Loan Amount: ", round(aver_loan_amnt, 2)))%>%
+                  add_text(
+                  x=22,y="Other",text=~year_quarter, frame=~year_quarter,
+                  textfont=list(size=75, color=toRGB("gray80")))%>%
+                  add_markers(frame=~year_quarter,   
+                              color=~income_cat,colors=c("#0040FF", "#FE9A2E", "#FE2E2E"),
+                              size=~aver_loan_amnt, marker=list(sizemode="diameter"))%>%
+                  layout(xaxis=list(title="Average Interest Rate"),
+                         yaxis=list(title="Loan Purpose"),
+                         title="Average Interest Rate on Loan Purpose by Income Category")%>%
+                  animation_slider(hide=TRUE)
+title_plot               
+                 
+```
+
+Region {data-navmenu="Loan by Types"}
+=======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r, }
+title_type<- c("North West", "South East", "West", "Mid West", "South West")
+checkboxGroupInput(
+        "region",
+        "Regions:",
+        choices = title_type,
+        selected = title_type
+      )
+
+```
+
+
+Column
+-----------------------------------------------------------------------
+
+### By Regions
+
+```{r}
+region_loan <- loan_raw%>%
+                  group_by(home_ownership, region)%>%
+                  summarise(avg_annual_inc = round(mean(annual_inc),2))
+  reactive_region <- reactive(
+    region_loan %>%
+      filter(region %in% input$region)
+  )
+
+renderPlotly({
+    validate(
+      need(input$region, 'Check at least one region!')
+    )
+    reactive_region() %>% 
+      plot_ly(x=~home_ownership, y=~avg_annual_inc, color=~region)%>%
+      add_bars() %>%
+      layout(xaxis=list(title="Home Ownership"), 
+             yaxis=list(title="Average Annual Income"))
+  })
+```
+
+
+Assoication
+=======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+>This moasic plot indicates the association between credit grades and class of income.
+
+>For each loan purpose selection, the plot would show the specific findings on selected loan purpose. 
+
+>Signs at the right reveal the Peason's residuals. Blue means positively assoicated; Red means negatively associated.
+
+
+
+```{r}
+vcd_loan <- loan_raw[,c("grade", "title", "income_cat")]
+title_type<- c("Business", "Car financing", "Credit card refinancing", "Debt consolidation", 
+               "Green loan", "Home buying", "Home improvement", "Major purchase", "Medical expenses",
+               "Moving and relocation", "Other")
+selectInput("title","Loan Purpose:", choices = title_type, selected = "Business")
+
+```
+
+
+
+
+Column
+-----------------------------------------------------------------------
+
+### Mosaic Plot
+```{r}
+renderPlot({
+  vcd_loan<-vcd_loan[title%chin%input$title]
+  mosaic(~grade+income_cat, data = vcd_loan,
+         shade = TRUE, split_vertical = c (TRUE, FALSE))
+  
+})
+```
+
