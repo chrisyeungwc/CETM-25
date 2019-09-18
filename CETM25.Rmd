@@ -9,6 +9,7 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
+#load library
 library(flexdashboard)
 library(data.table)
 library(tidyverse)
@@ -26,12 +27,18 @@ y2018<-c("2018 Q1", "2018 Q2", "2018 Q3", "2018 Q4")
 
 #load data
 loan_raw <- fread("loan.csv")
+
+#split the dataset into 2018 and 2019
 loan2018_raw <- loan_raw[year_quarter%chin%y2018]
 loan2019_raw <- loan_raw[year_quarter%chin%c("2019 Q1", "2019 Q2"),]
+
+#load the state.csv
 state_to_abbr<- fread("state.csv")
+
 loan2018<-loan2018_raw
 loan2019<-loan2019_raw
-#specify some map projection/options
+
+#specify some map options for a global variable
 #using plotly package to draw map
 g <- list(
   scope = 'usa',
@@ -58,7 +65,10 @@ loan_map <- loan_raw[loan_status %chin% c("Charged Off", "Current", "Issued", "I
                                            mn_an_income=round(mean(annual_inc), 2), 
                                           loan_amount = sum (loan_amnt), 
                                           mn_int_rate=round(mean(loan_int),4)), by="addr_state"]
+#merge the table by matching the abbr. of states
 loan_map <- left_join(state_to_abbr, loan_map, by = c("code" = "addr_state"))
+
+#define hover information
 loan_map$hover <- with(loan_map, paste(state, '<br>', 
                                        "No of App",format(no_app, big.mark = ","), '<br>', 
                                        "Issued Loan Amount", format(loan_amount, big.mark = ","),'<br>',
@@ -66,15 +76,16 @@ loan_map$hover <- with(loan_map, paste(state, '<br>',
                                        "Average Annual Income", format(mn_an_income, big.mark = ","), '<br>', 
                                        "Average Interest Rate", mn_int_rate*100,"%"))
 
+#plot the map
 map_plot <- plot_geo(loan_map, locationmode = 'USA-states') %>%
   add_trace(
-    z = ~total_int, text = ~hover, locations = ~code,
-    color = ~total_int, colors = 'Blues'
+    z = ~total_int, text = ~hover, locations = ~code, #location: USA
+    color = ~total_int, colors = 'Blues' # define the colors in gradient and colored by total interest
   ) %>%
-  colorbar(title = "Expected Revenue in USD") %>%
+  colorbar(title = "Expected Revenue in USD") %>% #title of color bar
   layout(
-    title = 'Expected Revenue (Interests) on Each State',
-    geo = g
+    title = 'Expected Revenue (Interests) on Each State', #title
+    geo = g #using global variable
   )
 
 map_plot
@@ -83,6 +94,7 @@ map_plot
 ### Bad Loan
 
 ```{r}
+#same method to create second map on bad loan
 default_map <- loan_raw[bad_loan %chin% "Bad Loan", .(no_app = .N, total_int=sum(total_int), mn_an_income=round(mean(annual_inc), 2), 
                                                  loan_amount = sum (loan_amnt), mn_dti=round(mean(dti, na.rm=TRUE),4)), by="addr_state"]
 default_map <- left_join(state_to_abbr, default_map, by = c("code" = "addr_state"))
@@ -101,7 +113,7 @@ default_map_plot <- plot_geo(default_map, locationmode = 'USA-states') %>%
   colorbar(title = "Bad Loan Interest in USD") %>%
   layout(
     title = 'Bad Loan on Each State',
-    geo = g
+    geo = g #using global variable
   )
 
 default_map_plot
@@ -127,7 +139,7 @@ Column {data-width=250}
 
 ```{r}
 table_loan <- plot_ly(
-  type = 'table',
+  type = 'table', #create table columns first
   header = list(
     values = c('<b>Year-Quarter</b>', '<b>2018 Q1-Q4</b>','<b>2019 Q1-Q2</b>'),
     line = list(color = '#506784'),
@@ -137,7 +149,8 @@ table_loan <- plot_ly(
   ),
   cells = list(
     values = rbind(
-      c('No. of Applications', 'Expected Revenue (USD)', 'Average Annual Income (USD)', 'Total Loan Amount (USD)', 'Average Interest Rate', 'No. of Bad Loans', 'Default Rate', 'Bad Loan Amount (USD)'),
+      c('No. of Applications', 'Expected Revenue (USD)', 'Average Annual Income (USD)', 'Total Loan Amount (USD)', 'Average Interest Rate', 'No. of Bad Loans', 'Default Rate', 'Bad Loan Amount (USD)'), #create table row names
+      #the figures had been calculated
       c("442,629","2,031M","80,078.42","7,097M","12.72%","27,706", "0.16%", "482.77M"),#2018
       c("246,814","1,165M","80,046.67","4,103M","12.73%","3,166", "0.02%", "51.14M")),#2019
     line = list(color = '#506784'),
@@ -152,7 +165,10 @@ table_loan
 ### Achievement of Issued Loan Amount in 2019
 
 ```{r}
+#Gauge
+#Calculate the rate first
 rate <- round(sum(loan2019$loan_amnt)/sum(loan2018$loan_amnt)*100,2)
+#draw the gauge
 gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
   success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
 ```
@@ -178,6 +194,7 @@ Column
 ### Year-Quarter
 
 ```{r}
+#sort and filter the dataset
 quarter_loan<-loan_raw[bad_loan %chin% "Bad Loan", .(aver_int=round(mean(loan_int)*100, 2), aver_loan_amnt=mean(loan_amnt)), by=c("year_quarter", "loan_status")]
 
 quarter_plot<- quarter_loan%>%
@@ -185,7 +202,8 @@ quarter_plot<- quarter_loan%>%
                           hoverinfo="text", 
                           text=~paste("Average Interest Rate: ", round(aver_int, 2), "<br>",
                                       "Average Loan Amount: ", round(aver_loan_amnt, 2)))%>%
-                          add_lines(linetype=~loan_status,color = ~loan_status)%>%
+                          #line chart, and define linetype and color
+                          add_lines(linetype=~loan_status,color = ~loan_status)%>% 
                           layout(xaxis=list(title="Year Quarter"),
                                  yaxis=list(title="Average Loan Amount"),
                                  title="Average Bad Loan Amount on Loan Purpose by Income Category")  
@@ -222,7 +240,6 @@ grade_plot_pie<-grade_loan_pie%>%
                                   'Number of Loans: ', no_of_loan),
                     marker = list(colors = ~grade,
                                   line = list(color = '#FFFFFF', width = 1)),
-                    #The 'pull' attribute can also be used to create space between the sectors
                     showlegend = FALSE) %>%
                         layout(title = 'Credit Grade Proportion on Bad Loan',
                     xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
@@ -245,7 +262,6 @@ income_cat_plot_pie<-income_cat_loan_pie%>%
                                   'Number of Loans: ', no_of_loan),
                     marker = list(colors = ~income_cat,
                                   line = list(color = '#FFFFFF', width = 1)),
-                    #The 'pull' attribute can also be used to create space between the sectors
                     showlegend = FALSE) %>%
                         layout(title = 'Income Categories Proportion on Bad Loan',
                     xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
@@ -267,7 +283,6 @@ region_plot_pie<-region_loan_pie%>%
                                   'Number of Loans: ', no_of_loan),
                     marker = list(colors = ~region,
                                   line = list(color = '#FFFFFF', width = 1)),
-                    #The 'pull' attribute can also be used to create space between the sectors
                     showlegend = FALSE) %>%
                         layout(title = 'Region Proportion on Bad Loan',
                     xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
@@ -305,10 +320,12 @@ title_plot<- loan_raw%>%
                         text=~paste("Average Interest Rate: ", round(aver_int, 2), "<br>",
                                     "Average Loan Amount: ", round(aver_loan_amnt, 2)))%>%
                   add_text(
-                  x=22,y="Other",text=~year_quarter, frame=~year_quarter,
+                  x=22,y="Other",text=~year_quarter, frame=~year_quarter, #text frame for animation variable
                   textfont=list(size=75, color=toRGB("gray80")))%>%
+                  #bubble frame for animation variable                
                   add_markers(frame=~year_quarter,   
-                              color=~income_cat,colors=c("#0040FF", "#FE9A2E", "#FE2E2E"),
+                              #colored by income category
+                              color=~income_cat,colors=c("#0040FF", "#FE9A2E", "#FE2E2E"), 
                               size=~aver_loan_amnt, marker=list(sizemode="diameter"))%>%
                   layout(xaxis=list(title="Average Interest Rate"),
                          yaxis=list(title="Loan Purpose"),
@@ -335,6 +352,7 @@ Please note that this plot does not present bad loan data only.
 
 ```{r, }
 title_type<- c("North West", "South East", "West", "Mid West", "South West")
+#create a checkbox input, which provides regions to select
 checkboxGroupInput(
         "region",
         "Regions:",
@@ -351,19 +369,18 @@ Column
 ### By Regions
 
 ```{r}
+#grouping on the dataset and then calculate the means of annual income
 region_loan <- loan_raw%>%
                   group_by(home_ownership, region)%>%
                   summarise(avg_annual_inc = round(mean(annual_inc),2))
-  reactive_region <- reactive(
-    region_loan %>%
-      filter(region %in% input$region)
-  )
+#this reactive function is to update the changes on checkbox selections
+reactive_region <- reactive(region_loan %>% filter(region %in% input$region))
 
 renderPlotly({
     validate(
       need(input$region, 'Check at least one region!')
     )
-    reactive_region() %>% 
+    reactive_region() %>% #recall reactive_region() function to update the bar charts
       plot_ly(x=~home_ownership, y=~avg_annual_inc, color=~region)%>%
       add_bars() %>%
       layout(xaxis=list(title="Home Ownership"), 
@@ -391,10 +408,13 @@ For example, in "Business" loan purpose category, the moasic plot shows Grade A 
 
 
 ```{r}
+#create dataset only included three columns
 vcd_loan <- loan_raw[,c("grade", "title", "income_cat")]
+#create the choices in select input
 title_type<- c("Business", "Car financing", "Credit card refinancing", "Debt consolidation", 
                "Green loan", "Home buying", "Home improvement", "Major purchase", "Medical expenses",
                "Moving and relocation", "Other")
+#create a select input
 selectInput("title","Loan Purpose:", choices = title_type, selected = "Business")
 
 ```
@@ -407,6 +427,8 @@ Column
 
 ### Mosaic Plot
 ```{r}
+#vcd package for drawing a mosaic plot
+#library(vcd) is specified for categorical variables
 renderPlot({
   vcd_loan<-vcd_loan[title%chin%input$title]
   mosaic(~grade+income_cat, data = vcd_loan,
