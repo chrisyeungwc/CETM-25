@@ -4,7 +4,8 @@ Instruction: As a data visualiser in a data scientist start-up company, you are 
 The viewer of your data visualisation product will be those junior governmet officals who have no or very limited knowlegde of data scuence or data visualisation rechnologies, but need to install, deploy, and use your data visualisation product to visualise a compelling data storytelling for a group of targeted audiences who are professional data driven journalists of publuc media.
 
 ## Open Dataset
-This is a dataset from Kaggle, Lending Club Loan Data. https://www.kaggle.com/wendykan/lending-club-loan-data
+This is a dataset from Kaggle, [Lending Club Loan Data](https://www.kaggle.com/wendykan/lending-club-loan-data).
+The dataset named "loan.csv", which includes 145 columns
 
 It is noted that the dataset used in dashboard has been modified, such as added new columns and changed the data formats etc.
 
