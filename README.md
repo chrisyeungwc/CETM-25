@@ -16,12 +16,17 @@ It is noted that there is no leakage of personal information, such that the read
 The dataset used in dashboard has been modified.
 
 * New update data 2019Q1 and 2019Q2 has been downloaded from [Lending Club](https://www.lendingclub.com/company/about-us).
-* Column "term" and "int_rate" have been changed to be numeric format.
+* Anthoer dataset "state.csv" is uploaded to convert the abbreviation of states to be full name.
+* Column "term" is changed to be numeric format.
+* A new column "loan_int" is derived by "int_rate" * "loan_amnt".
 * A new column "year_quarter" contains the year and quarter of the loan issued date "inssue_d".
 * A new column "bad_loan" contains the loan may be potentially default or default already, which the loan status includes “Charge Off”, “In Grace Period”, “Late Payments” and “Default”.
 * A new column "total_int" means the total interests from the loans, i.e. "installment" * "term" - "loan_amnt".
 * A new column "region" contains five regions, West, South West, South East, Mid West and North East.
-* A new column "income_cat" contains 
+* A new column "income_cat" contains three income categories.
+- Low income category: Borrowers that have an annual income lower or equal to 100,000 usd.
+- Medium income category: Borrowers that have an annual income higher than 100,000 usd but lower or equal to 200,000 usd.
+- High income category: Borrowers that have an annual income higher tha 200,000 usd.
 
 ## Code Style 
 This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. 
