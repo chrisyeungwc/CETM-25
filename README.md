@@ -6,20 +6,26 @@ The viewer of your data visualisation product will be those junior governmet off
 ## Open Dataset
 This is a dataset from Kaggle, [**Lending Club Loan Data**](https://www.kaggle.com/wendykan/lending-club-loan-data).
 
-```
-The file "loan.csv" contains open loan data from [Lending Club](https://www.lendingclub.com/company/about-us) in US. The period covered from Jun2007 to Dec2018. The loan data only includes the successful loan applications but not rejected applications. Dataset has 145 columns, which involves different types of information such as annual income, credit grade, loan purpose etc. It is noted that there is no leakage of personal information, such that the readers do not know the loan applicants. 
-```
+### Description
+The file "loan.csv" contains open loan data from [Lending Club](https://www.lendingclub.com/company/about-us) in US. 
+The period covered from Jun2007 to Dec2018. The loan data only includes the successful loan applications but not rejected applications. 
+Dataset has 145 columns, which involves different types of information such as annual income, credit grade, loan purpose etc. 
+It is noted that there is no leakage of personal information, such that the readers do not know the loan applicants. 
 
-## Data Pre-processing & Cleansing
+### Data Pre-processing and Cleansing
 The dataset used in dashboard has been modified.
 
-```
-
-```
+* New update data 2019Q1 and 2019Q2 has been downloaded from [Lending Club](https://www.lendingclub.com/company/about-us).
+* Column "term" and "int_rate" have been changed to be numeric format.
+* A new column "year_quarter" contains the year and quarter of the loan issued date "inssue_d".
+* A new column "bad_loan" contains the loan may be potentially default or default already, which the loan status includes “Charge Off”, “In Grace Period”, “Late Payments” and “Default”.
+* A new column "total_int" means the total interests from the loans, i.e. "installment" * "term" - "loan_amnt".
+* A new column "region" contains five regions, West, South West, South East, Mid West and North East.
+* A new column "income_cat" contains 
 
 ## Code Style 
 This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. 
 
-### Built With
+## Built With
 * The dashboard is built by flexdashboard R Markdown file. 
 * [Demostration](https://chris-yeung.shinyapps.io/CETM25/) is uploaded to [shiny.io](https://www.shinyapps.io/).  
