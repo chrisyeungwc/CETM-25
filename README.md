@@ -23,10 +23,7 @@ The dataset used in dashboard has been modified.
 * A new column "bad_loan" contains the loan may be potentially default or default already, which the loan status includes “Charge Off”, “In Grace Period”, “Late Payments” and “Default”.
 * A new column "total_int" means the total interests from the loans, i.e. "installment" * "term" - "loan_amnt".
 * A new column "region" contains five regions, West, South West, South East, Mid West and North East.
-* A new column "income_cat" contains three income categories.
-- Low income category: Borrowers that have an annual income lower or equal to 100,000 usd.
-- Medium income category: Borrowers that have an annual income higher than 100,000 usd but lower or equal to 200,000 usd.
-- High income category: Borrowers that have an annual income higher tha 200,000 usd.
+* A new column "income_cat" contains three income categories, 1) Low income category: Borrowers that have an annual income lower or equal to 100,000 usd; 2) Medium income category: Borrowers that have an annual income higher than 100,000 usd but lower or equal to 200,000 usd; 3) High income category: Borrowers that have an annual income higher tha 200,000 usd.
 
 ## Code Style 
 This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. 
