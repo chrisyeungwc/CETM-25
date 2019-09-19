@@ -1,13 +1,25 @@
 # CTEM-25 Data Visualisation
 
-Instruction: As a data visualiser in a data scientist start-up company, you are tasked to design and develop a bespoke Big Data visualisation product as part of an individual R & D project. 
+Introduction: As a data visualiser in a data scientist start-up company, you are tasked to design and develop a bespoke Big Data visualisation product as part of an individual R & D project. 
 The viewer of your data visualisation product will be those junior governmet officals who have no or very limited knowlegde of data scuence or data visualisation rechnologies, but need to install, deploy, and use your data visualisation product to visualise a compelling data storytelling for a group of targeted audiences who are professional data driven journalists of publuc media.
 
 ## Open Dataset
-This is a dataset from Kaggle, [Lending Club Loan Data](https://www.kaggle.com/wendykan/lending-club-loan-data).
-The dataset named "loan.csv", which includes 145 columns
+This is a dataset from Kaggle, [**Lending Club Loan Data**](https://www.kaggle.com/wendykan/lending-club-loan-data).
 
-It is noted that the dataset used in dashboard has been modified, such as added new columns and changed the data formats etc.
+```
+The file "loan.csv" contains open loan data from [Lending Club](https://www.lendingclub.com/company/about-us) in US. The period covered from Jun2007 to Dec2018. The loan data only includes the successful loan applications but not rejected applications. Dataset has 145 columns, which involves different types of information such as annual income, credit grade, loan purpose etc. It is noted that there is no leakage of personal information, such that the readers do not know the loan applicants. 
+```
 
-## Code Style and Demostration
-This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. The dashboard is built by flexdashboard and the demostration is referred to link below. https://chris-yeung.shinyapps.io/CETM25/ 
+## Data Pre-processing & Cleansing
+The dataset used in dashboard has been modified.
+
+```
+
+```
+
+## Code Style 
+This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. 
+
+### Built With
+* The dashboard is built by flexdashboard R Markdown file. 
+* [Demostration](https://chris-yeung.shinyapps.io/CETM25/) is uploaded to [shiny.io](https://www.shinyapps.io/).  
