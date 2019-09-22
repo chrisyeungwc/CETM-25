@@ -7,7 +7,7 @@ The viewer of your data visualisation product will be those junior governmet off
 This is a dataset from Kaggle, [**Lending Club Loan Data**](https://www.kaggle.com/wendykan/lending-club-loan-data).
 
 ### Description
-The file "loan.csv" contains open loan data from [Lending Club](https://www.lendingclub.com/company/about-us) in US. 
+The file "loan.csv" contains open loan data from [**Lending Club**](https://www.lendingclub.com/company/about-us) in US. 
 The period covered from Jun2007 to Dec2018. The loan data only includes the successful loan applications but not rejected applications. 
 Dataset has 145 columns, which involves different types of information such as annual income, credit grade, loan purpose etc. 
 It is noted that there is no leakage of personal information, such that the readers do not know the loan applicants. 
@@ -15,7 +15,7 @@ It is noted that there is no leakage of personal information, such that the read
 ### Data Pre-processing and Cleansing
 The dataset used in dashboard has been modified.
 
-* New update data 2019Q1 and 2019Q2 has been downloaded from [Lending Club](https://www.lendingclub.com/company/about-us).
+* New update data 2019Q1 and 2019Q2 has been downloaded from [**Lending Club**](https://www.lendingclub.com/company/about-us).
 * Anthoer dataset "state.csv" is uploaded to convert the abbreviation of states to be full name.
 * Column "term" is changed to be numeric format.
 * A new column "loan_int" is derived by "int_rate" * "loan_amnt".
@@ -30,4 +30,4 @@ This data visualisation programming language is R and development platform is R 
 
 ## Built With
 * The dashboard is built by flexdashboard R Markdown file. 
-* [Demostration](https://chris-yeung.shinyapps.io/CETM25/) is uploaded to [shiny.io](https://www.shinyapps.io/).  
+* [**Demostration**](https://chris-yeung.shinyapps.io/CETM25/) is uploaded to [**shiny.io**](https://www.shinyapps.io/).  
