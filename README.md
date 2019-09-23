@@ -25,6 +25,12 @@ The dataset used in dashboard has been modified.
 * A new column "region" contains five regions, West, South West, South East, Mid West and North East.
 * A new column "income_cat" contains three income categories, 1) Low income category: Borrowers that have an annual income lower or equal to USD100,000; 2) Medium income category: Borrowers that have an annual income higher than USD100,000 but lower or equal to USD200,000; 3) High income category: Borrowers that have an annual income higher tha USD200,000.
 
+### Interactive Dashboard
+* Floating annotation
+* Checkbox input
+* Selection input
+* Animated scatter plot
+
 ## Code Style 
 This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. 
 
