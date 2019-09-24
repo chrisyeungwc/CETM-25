@@ -36,4 +36,4 @@ This data visualisation programming language is R and development platform is R 
 
 ## Built With
 * The dashboard is built by flexdashboard R Markdown file. 
-* [**Demostration**](https://chris-yeung.shinyapps.io/CETM25/) is uploaded to [**shiny.io**](https://www.shinyapps.io/).  
+* [**Demostration**](https://chris-yeung.shinyapps.io/CETM25/) is uploaded to [**shinyapps.io**](https://www.shinyapps.io/).  
