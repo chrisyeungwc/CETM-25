@@ -1,4 +1,4 @@
-# CTEM-25 Data Visualisation
+# Lending Club Loan Data
 
 Introduction: As a data visualiser in a data scientist start-up company, you are tasked to design and develop a bespoke Big Data visualisation product as part of an individual R & D project. 
 The viewer of your data visualisation product will be those junior governmet officals who have no or very limited knowlegde of data scuence or data visualisation rechnologies, but need to install, deploy, and use your data visualisation product to visualise a compelling data storytelling for a group of targeted audiences who are professional data driven journalists of public media.
