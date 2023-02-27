@@ -29,7 +29,7 @@ The dataset used in dashboard has been modified.
 * Animated scatter plot
 
 ## Code Style 
-This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as CETM25.Rmd. 
+This data visualisation programming language is R and development platform is R Studio. The source code has been uploaded as Main.Rmd. 
 
 ## Built With
 * The dashboard is built by flexdashboard R Markdown file. 
